@@ -58,4 +58,10 @@ Windows 用户也可以直接双击 `start.bat`。然后打开 <http://127.0.0.1
 
 ## 许可
 
-本项目代码采用 MIT 许可。依赖的 [dettato](https://github.com/kobimusic/dettato) 与 [VexFlow](https://github.com/vexflow/vexflow) 分别采用 Apache-2.0 和 MIT 许可，版权归各自作者所有。
+| 组成 | 许可 | 说明 |
+|---|---|---|
+| 本项目代码（`server.py`、`web/*.js` 等） | MIT | 见 [LICENSE](LICENSE) |
+| 打包的 VexFlow（`web/vendor/vexflow.js`） | MIT | 见 [LICENSE-vexflow.txt](web/vendor/LICENSE-vexflow.txt)，版权归 VexFlow 贡献者所有 |
+| dettato 库及其四个模型权重 | Apache-2.0 | 版权归 KobiMusic / Nathan Mills 所有；权重由 dettato 自行下载，不在本仓库内 |
+
+本项目不是 dettato 的 fork，也不修改其代码；仅通过 pip 依赖调用。模型权重的训练数据包含若干 CC BY 4.0 数据集，以及部分仅限非商业研究用途的数据集（详见各模型的 Hugging Face 卡片），如有商业使用需求请自行评估。
