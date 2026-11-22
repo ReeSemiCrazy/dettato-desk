@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dettato Desk — 音频转多轨 MIDI</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M3 16h3l2-7 3 14 3-11 3 8 3-5 2 3h5"/></svg>
+      </div>
+      <div class="brand-text">
+        <strong>dettato <span>desk</span></strong>
+        <small>多乐器音频转 MIDI</small>
+      </div>
+    </div>
+    <div class="top-right">
+      <a class="nav-btn" href="/sheet" title="打开乐谱工作台">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        乐谱工作台
+      </a>
+      <div class="env-pill" id="envPill" title="运行环境">
+        <span class="pulse" id="envDot"></span>
+        <span id="envText">检测环境中…</span>
+      </div>
+      <button class="icon-btn" id="refreshBtn" title="刷新环境状态" aria-label="刷新环境状态">
+        <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="card upload-card">
+        <div class="card-head">
+          <h2>新建转录</h2>
+          <span class="badge">WAV · MP3 · FLAC · M4A</span>
+        </div>
+
+        <label class="dropzone" id="dropzone" for="fileInput">
+          <input type="file" id="fileInput" accept="audio/*,.wav,.mp3,.flac,.ogg,.m4a,.aac" multiple hidden>
+          <div class="drop-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          </div>
+          <div class="drop-title">拖入音频文件</div>
+          <div class="drop-sub">或点击选择文件，可一次选多个</div>
+          <div class="drop-limit">单文件最大 200 MB</div>
+        </label>
+
+        <div class="control-row">
+          <label class="field-label" for="deviceSelect">推理设备</label>
+          <select id="deviceSelect">
+            <option value="auto">自动（优先 GPU）</option>
+            <option value="cuda">CUDA GPU</option>
+            <option value="cpu">CPU</option>
+            <option value="mps">Apple MPS</option>
+          </select>
+        </div>
+
+        <button class="demo-btn" id="demoBtn">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          生成示例音频并转录
+        </button>
+
+        <p class="hint" id="hintText">首次运行会从 Hugging Face 下载约 100 MB 模型权重，请稍候。</p>
+      </section>
+
+      <section class="card queue-card">
+        <div class="card-head">
+          <h2>任务队列</h2>
+          <span class="count" id="jobCount">0</span>
+        </div>
+        <div id="jobList" class="job-list">
+          <div class="empty-queue">还没有任务。上传一段音频开始吧。</div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="card result-card" id="resultCard">
+      <div class="empty-result" id="emptyResult">
+        <div class="empty-art" aria-hidden="true">
+          <svg viewBox="0 0 120 80"><rect x="6" y="10" width="108" height="60" rx="8"/><path d="M18 46h9v-9h6v17h7V29h7v28h7V38h7v16h7V24h7v31h7V41h7v12h6"/></svg>
+        </div>
+        <h2>等待第一段录音</h2>
+        <p>转录完成后，这里会显示每段乐器的音轨、音高时间图和 MIDI 下载。</p>
+      </div>
+
+      <div class="result-body" id="resultBody" hidden>
+        <div class="result-head">
+          <div class="result-title">
+            <h2 id="resultName">—</h2>
+            <div class="result-sub" id="resultMeta">—</div>
+          </div>
+          <div class="result-actions">
+            <a class="btn primary" id="midiLink" href="#" download>
+              <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>
+              下载 MIDI
+            </a>
+            <a class="btn" id="jsonLink" href="#" download>JSON</a>
+          </div>
+        </div>
+
+        <audio id="audioPlayer" controls preload="none"></audio>
+
+        <div class="stats" id="stats"></div>
+
+        <div class="tracks-head">
+          <h3>识别出的音轨</h3>
+          <span id="trackCount">—</span>
+        </div>
+        <div id="trackList" class="track-list"></div>
+
+        <details class="raw-details">
+          <summary>查看原始 JSON 汇总</summary>
+          <pre id="rawJson"></pre>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>dettato 2.0 · Apache-2.0 · 本地运行，音频不会离开这台机器</span>
+    <span id="footerInfo">—</span>
+  </footer>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

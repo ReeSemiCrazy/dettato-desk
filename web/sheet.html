@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dettato Desk — MIDI 播放与五线谱导出</title>
+<link rel="stylesheet" href="/sheet.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M4 22V10l5 8 5-12 5 16 4-9 5 5"/></svg>
+      </div>
+      <div class="brand-text">
+        <strong>dettato <span>desk</span></strong>
+        <small>MIDI 播放 · 五线谱导出</small>
+      </div>
+    </div>
+    <nav class="topnav">
+      <a href="/" class="nav-link">← 返回转录工作台</a>
+      <span class="env-pill" id="envPill"><span class="pulse" id="envDot"></span><span id="envText">检测中…</span></span>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="card">
+        <div class="card-head"><h2>选择转录结果</h2><span class="count" id="jobCount">0</span></div>
+        <div id="jobList" class="job-list">
+          <div class="empty-queue">加载中…</div>
+        </div>
+        <p class="hint">这里列出转录工作台里已完成的任务。回到首页上传音频即可新增。</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>播放设置</h2></div>
+        <div class="control-row">
+          <label class="field-label" for="speedSel">速度</label>
+          <select id="speedSel">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1.0×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2.0×</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label class="field-label" for="volRange">音量</label>
+          <input type="range" id="volRange" min="0" max="100" value="70">
+        </div>
+        <div class="control-row">
+          <label class="field-label" for="waveSel">音色</label>
+          <select id="waveSel">
+            <option value="triangle" selected>柔和（三角波）</option>
+            <option value="sine">纯净（正弦波）</option>
+            <option value="square">复古（方波）</option>
+            <option value="sawtooth">明亮（锯齿波）</option>
+          </select>
+        </div>
+        <div id="trackMix" class="track-mix"><p class="hint">选择结果后可在下方单独开关每条音轨。</p></div>
+      </section>
+    </aside>
+
+    <section class="card main-card">
+      <div class="empty-main" id="emptyMain">
+        <div class="empty-art" aria-hidden="true">
+          <svg viewBox="0 0 160 90"><rect x="6" y="10" width="148" height="70" rx="9"/><path d="M20 30h120M20 42h120M20 54h120M20 66h120M48 22v50M84 22v50M120 22v50"/><circle cx="64" cy="54" r="6"/><circle cx="100" cy="42" r="6"/></svg>
+        </div>
+        <h2>选一段转录结果开始</h2>
+        <p>用 Web Audio 合成播放 MIDI 音符，并把演奏量化成五线谱；可导出 MusicXML、PNG 或打印成 PDF。</p>
+      </div>
+
+      <div class="main-body" id="mainBody" hidden>
+        <div class="result-head">
+          <div>
+            <h2 id="resultName">—</h2>
+            <div class="result-sub" id="resultMeta">—</div>
+          </div>
+          <div class="result-actions">
+            <a class="btn" id="midiLink" href="#" download>下载 MIDI</a>
+            <a class="btn" id="jsonLink" href="#" download>JSON</a>
+          </div>
+        </div>
+
+        <div class="player">
+          <div class="player-controls">
+            <button class="play-btn" id="playBtn" title="播放 / 暂停"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="icon-btn" id="stopBtn" title="停止"><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></button>
+            <span class="time" id="timeNow">0:00</span>
+            <div class="progress" id="progress"><i id="progressFill"></i><b id="progressHead"></b></div>
+            <span class="time" id="timeTotal">0:00</span>
+          </div>
+          <div class="overview"><canvas id="overviewCanvas"></canvas><div class="overview-head" id="overviewHead"></div></div>
+          <div class="player-foot"><span id="nowPlaying">未播放</span><span id="playState">就绪</span></div>
+        </div>
+
+        <div class="score-bar">
+          <div class="score-tools">
+            <label for="quantSel">量化网格</label>
+            <select id="quantSel">
+              <option value="raw">细网格（保留细节）</option>
+              <option value="16">1/16 音符</option>
+              <option value="8">1/8 音符</option>
+            </select>
+            <span class="tempo-note" id="tempoNote">—</span>
+          </div>
+          <div class="export-tools">
+            <button class="btn" id="xmlBtn">导出 MusicXML</button>
+            <button class="btn" id="pngBtn">导出 PNG</button>
+            <button class="btn primary" id="pdfBtn">打印 / 存为 PDF</button>
+          </div>
+        </div>
+
+        <div id="scoreSheet" class="sheet-paper"></div>
+        <p class="sheet-foot" id="sheetFoot"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>dettato sheet · 本地运行，音频与乐谱不会离开这台机器</span>
+    <span id="footerInfo">—</span>
+  </footer>
+</div>
+<div id="printSheet"></div>
+<script src="/vendor/vexflow.js"></script>
+<script src="/score.js"></script>
+<script src="/sheet.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Dettato Desk runtime dependencies
+# Python 3.13 (project was developed and tested on 3.13)
+#
+# dettato pulls in torch / numpy / scipy / soundfile / soxr / pretty_midi /
+# huggingface_hub / safetensors as its own dependencies. We pin the minimum
+# version here and add imageio-ffmpeg for m4a/aac/opus decoding.
+dettato>=2.0.0
+imageio-ffmpeg>=0.6
+
+# NOTE: the PyTorch build installed from PyPI is CPU-only by default.
+# For NVIDIA GPU acceleration, install a CUDA wheel separately, e.g.:
+#   pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.11.0+cu128
